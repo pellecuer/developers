@@ -42,7 +42,7 @@ class CsvImportCommand extends Command
         $io->title('Importation en cours');
         
 
-        $reader = Reader::createFromPath('%kernel.root_dir%/../src/Data/developers_simple.csv')
+        $reader = Reader::createFromPath('%kernel.root_dir%/../src/Data/developers_middle.csv')
             ->setHeaderOffset(0)
         ;        
 
@@ -52,22 +52,25 @@ class CsvImportCommand extends Command
         //Disable SQL Logging: to avoid huge memory loss.
         $this->em->getConnection()->getConfiguration()->setSQLLogger(null);
 
+         // Define the size of record, the frequency for persisting the data and the current index of records
+         $size = iterator_count($results);
+         $batchSize = 50;
+         $i = 1;
+
 
         foreach ($results as $row) {                     
             $developer = $this->em->getRepository(Developer::class)
             ->findOneBy([
                 'firstName' => ($row['FIRSTNAME']),
                 'lastName'=> ($row['LASTNAME'])
-            ]);
-            dump($developer);die;         
+            ]);                  
             
 
             if (null === $developer) {
                 $developer = new developer;
                 $developer
                     ->setFirstName($row['FIRSTNAME'])
-                    ->setLastName($row['LASTNAME']);
-                    
+                    ->setLastName($row['LASTNAME']);                 
                
                 $this->em->persist($developer);
             }
@@ -87,15 +90,20 @@ class CsvImportCommand extends Command
                 $badgeLabel
                     ->setName($row['BADGE LABEL'])
                     ->setLevel($row['BADGE LEVEL']);
-                $this->em->persist($badgeLabel);
-                $this->em->flush();
-                $this->em->clear();
+                $this->em->persist($badgeLabel);                
 
             }
             $developer
                 ->addBadgeLabel($badgeLabel);
             
+            if (($i % $batchSize) === 0) {
+                $this->em->flush();
+                // Detaches all objects from Doctrine for memory save
+                $this->em->clear();
+            }
+            $i++;
             $io->progressAdvance();
+
         }
         
         $this->em->flush();
