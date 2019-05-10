@@ -11,6 +11,7 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Doctrine\DBAL\Driver\Connection;
 
 
+
 class ImportController extends AbstractController
 {    
 
@@ -27,8 +28,7 @@ class ImportController extends AbstractController
         //$rawSql = "SELECT m.id, (SELECT COUNT(i.id) FROM item AS i WHERE i.myclass_id = m.id) AS total FROM myclass AS m";
         //$rawSql = 'INSERT INTO developer (id, first_name, last_name) VALUES (NULL, jean, pellecuer)';
 
-        $developers = $connection->fetchAll('SELECT * FROM developer');
-        dump($developers);die;
+        $developers = $connection->fetchAll('SELECT * FROM developer');        
        
        $rawSql = 'INSERT INTO developer (id, first_name, last_name) VALUES (
             NULL,
@@ -103,13 +103,13 @@ class ImportController extends AbstractController
     public function findbyDBAL(Connection $connection)
     {
         $sql = "INSERT INTO developer (id, first_name, last_name) VALUES 
-        (1000000003, 'MIchel', 'pellecuer');";
-        $pstmt = $connection->prepare($sql);
-
+        (NULL, 'pepe', 'pellecuer');";
+        
         // returns an array of arrays (i.e. a raw data set)
-        var_dump($connection->fetchAll($sql));die;
-        return $connection->fetchAll($sql);
-        }
+        $connection->query($sql);
+
+        return new Response('importation réussie');
+    }
 
 
 
