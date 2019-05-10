@@ -21,17 +21,17 @@ class CsvImportCommand extends Command
     }
     
     // the name of the command (the part after "bin/console")
-    protected static $defaultName = 'import-developpers';
+    protected static $defaultName = 'import-developers';
 
     protected function configure()
     {
         $this
         // the short description shown while running "php bin/console list"
-        ->setDescription('Import a new developper.')
+        ->setDescription('Import a new developer.')
 
         // the full command description shown when running the command with
         // the "--help" option
-        ->setHelp('This command allows you to import a develpper...')
+        ->setHelp('This command allows you to import a developper...')
     ;
 
     }
@@ -54,30 +54,27 @@ class CsvImportCommand extends Command
 
          // Define the size of record, the frequency for persisting the data and the current index of records
          $size = iterator_count($results);
-         $batchSize = 50;
+         $batchSize = 1;
          $i = 1;
 
 
-        foreach ($results as $row) {                     
+        foreach ($results as $row) { 
+
             $developer = $this->em->getRepository(Developer::class)
             ->findOneBy([
                 'firstName' => ($row['FIRSTNAME']),
                 'lastName'=> ($row['LASTNAME'])
-            ]);                  
+            ]);                      
             
 
-            if (null === $developer) {
+            if (null === $developer) {                
                 $developer = new developer;
                 $developer
                     ->setFirstName($row['FIRSTNAME'])
-                    ->setLastName($row['LASTNAME']);                 
-               
+                    ->setLastName($row['LASTNAME']);
                 $this->em->persist($developer);
             }
-
-            
-            
-                
+                            
             $badgeLabel = $this->em->getRepository(BadgeLabel::class)
                 ->findOneBy([
                     'name' => ($row['BADGE LABEL']),
@@ -90,8 +87,7 @@ class CsvImportCommand extends Command
                 $badgeLabel
                     ->setName($row['BADGE LABEL'])
                     ->setLevel($row['BADGE LEVEL']);
-                $this->em->persist($badgeLabel);                
-
+                $this->em->persist($badgeLabel);
             }
             $developer
                 ->addBadgeLabel($badgeLabel);

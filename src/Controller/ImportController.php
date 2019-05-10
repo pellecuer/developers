@@ -103,7 +103,7 @@ class ImportController extends AbstractController
     public function findbyDBAL(Connection $connection)
     {
         $sql = "INSERT INTO developer (id, first_name, last_name) VALUES 
-        (1000000002, 'Pierre', 'pellecuer');";
+        (1000000003, 'MIchel', 'pellecuer');";
         $pstmt = $connection->prepare($sql);
 
         // returns an array of arrays (i.e. a raw data set)
