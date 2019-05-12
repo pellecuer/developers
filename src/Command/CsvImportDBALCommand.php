@@ -47,7 +47,7 @@ class CsvImportDBALCommand extends Command
         $results = $reader->getrecords(); 
         $io->progressStart(iterator_count($results));
         
-        $sql = "INSERT IGNORE INTO developer (id, first_name, last_name) VALUES";
+        $sql = "INSERT INTO developer (id, first_name, last_name) VALUES";
         foreach ($results as $row) {
             $firstName = $row['FIRSTNAME'];
             $lastName = $row['LASTNAME'];
@@ -57,9 +57,19 @@ class CsvImportDBALCommand extends Command
 
         $sql = $sql . "(NULL, 'value1', 'value2')";
          
-        //dump ($sql);die;       
+        //dump ($sql);die;
         
-        $connexion->query($sql);
+        //Début du code ajouté
+        $stmt = $this->em
+        ->getConnection()
+        ->prepare($sql);
+    
+        //$stmt->executeUpdate([]);
+        $stmt->query($sql);
+        //fin du code ajouté
+
+        
+        //$connexion->query($sql);
         $io->progressFinish();       
         $io->success('Importation effectuée avec succès.');
     }
