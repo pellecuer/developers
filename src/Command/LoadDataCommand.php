@@ -8,23 +8,18 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
-use Doctrine\DBAL\Driver\Connection;
 use Doctrine\ORM\EntityManagerInterface;
-use League\Csv\Reader;
 
-
-class CsvImportDBALCommand extends Command
+class LoadDataCommand extends Command
 {
-    public function __construct(EntityManagerInterface $em)
-    {
-        
-        parent::__construct();
+    protected static $defaultName = 'loadData';
 
+    public function __construct(EntityManagerInterface $em)
+    {        
+        parent::__construct();
         $this->em = $em;
     }
-
-    protected static $defaultName = 'bigImport';
-
+    
     protected function configure()
     {
         $this
@@ -37,30 +32,40 @@ class CsvImportDBALCommand extends Command
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         $io = new SymfonyStyle($input, $output);
-        $io->title('Importation en cours');
+        $arg1 = $input->getArgument('arg1');
+
+        if ($arg1) {
+            $io->note(sprintf('You passed an argument: %s', $arg1));
+        }
+
+        if ($input->getOption('option1')) {
+            // ...
+        }
+
+        //début du code
 
         $connexion = $this->em
         ->getConnection();
         
-        $reader = Reader::createFromPath('%kernel.root_dir%/../src/Data/developers_big.csv')
-        ->setHeaderOffset(0);
-        $results = $reader->getrecords(); 
-        $io->progressStart(iterator_count($results));
-        
-        $sql = "INSERT IGNORE INTO developer (id, first_name, last_name) VALUES";
-        foreach ($results as $row) {
-            $firstName = $row['FIRSTNAME'];
-            $lastName = $row['LASTNAME'];
-            $sql = "$sql" . "(NULL, '" . $firstName . "', '" . $lastName . "'),";
-            $io->progressAdvance();
+        if (!$connexion) {
+            echo "couldn't connect to database";
+            exit;
+        } else {
+            $sql ="LOAD DATA INFILE '/var/lib/mysql-files/developers_big.csv'
+            INTO TABLE import
+            FIELDS TERMINATED BY ','
+            IGNORE 1 LINES 
+            (last_name, first_name, badge_label, badge_level)";
+
+            if ($connexion->query($sql)) {
+                echo ("executed");
+            } else {
+                echo ("error");
+            }
         }
 
-        $sql = $sql . "(NULL, 'value1', 'value2')";
-         
-        //dump ($sql);die;       
-        
-        $connexion->query($sql);
-        $io->progressFinish();       
-        $io->success('Importation effectuée avec succès.');
+        //fin du code
+
+
     }
 }
