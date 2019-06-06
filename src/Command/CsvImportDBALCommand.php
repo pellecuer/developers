@@ -55,18 +55,22 @@ class CsvImportDBALCommand extends Command
             $io->progressAdvance();
         }
 
-        $sql = $sql . "(NULL, 'value1', 'value2')";
-         
-        //dump ($sql);die;
+        $stmt = $connexion->prepare($sql);
         
-        //Début du code ajouté
-        $stmt = $this->em
-        ->getConnection()
-        ->prepare($sql);
-    
-        //$stmt->executeUpdate([]);
-        $stmt->query($sql);
-        //fin du code ajouté
+        // $stmt->query($sql);
+        $stmt->execute($sql);
+        
+
+        // foreach ($results as $row) {
+        // $connexion->insert('developer', array(
+        //     'first_name' => $row['FIRSTNAME'],
+        //     'last_name' => $row['LASTNAME']
+        //     ));
+        // $io->progressAdvance();
+        }
+       
+       
+        
 
         
         //$connexion->query($sql);
