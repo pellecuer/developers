@@ -55,7 +55,7 @@ class CsvImportDBALCommand extends Command
             $io->progressAdvance();
         }
 
-        $stmt = $connexion->prepare($sql);
+        // $stmt = $connexion->prepare($sql);
         
         // $stmt->query($sql);
         $stmt->execute($sql);

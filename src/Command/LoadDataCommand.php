@@ -46,22 +46,53 @@ class LoadDataCommand extends Command
 
         $connexion = $this->em
         ->getConnection();
+
+        //$bdd = new PDO('mysql:host=127.0.0.1; dbname=developers','root','', array(PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,PDO::MYSQL_ATTR_LOCAL_INFILE => true));
         
         if (!$connexion) {
             echo "couldn't connect to database";
             exit;
-        } else {
-            $sql ="LOAD DATA INFILE '/var/lib/mysql-files/developers_big.csv'
-            INTO TABLE import
-            FIELDS TERMINATED BY ','
-            IGNORE 1 LINES 
-            (last_name, first_name, badge_label, badge_level)";
+        } else {            
+            $sql1 ="CREATE TABLE IF NOT EXISTS import ( last_name INT NOT NULL , first_name INT NOT NULL , badge_label INT NOT NULL , badge_level INT NOT NULL )";
+            $p = "../data//Data/developers_big.csv";
+            $p = addslashes($p);
 
-            if ($connexion->query($sql)) {
-                echo ("executed");
-            } else {
-                echo ("error");
-            }
+            
+            $sql = "TRUNCATE TABLE import;";
+            $stmt = $connexion->prepare($sql);
+            $stmt->execute();
+            $sql3 = "LOAD DATA INFILE '$p'
+            INTO TABLE import FIELDS TERMINATED BY ','
+            LINES TERMINATED BY '\r\n'
+            IGNORE 1 LINES
+            (last_name, first_name, badge_label, badge_level)
+            ;";
+            $stmt = $connexion->prepare($sql3);
+            $stmt->execute();
+
+
+            // $sql2 ="LOAD DATA INFILE '../Data/developers_big.csv'            
+            // INTO TABLE import
+            // FIELDS TERMINATED BY ','
+            // LINES TERMINATED BY '\r\n'
+            // IGNORE 1 LINES            
+            // ";
+            // // INTO TABLE import
+            // // FIELDS TERMINATED BY ','
+            // // LINES TERMINATED BY '\r\n'
+            // // IGNORE 1 LINES
+            // // (last_name, first_name, badge_label, badge_level)"
+            // // ;
+            // // dump($sql);die
+            // $stmt = $bdd->prepare($sql);
+            // $stmt->execute();    
+            
+
+            // if ($connexion->query($sql)) {
+            //     echo ("executed");
+            // } else {
+            //     echo ("error");
+            // }
         }
 
         //fin du code
