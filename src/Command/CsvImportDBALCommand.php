@@ -67,7 +67,7 @@ class CsvImportDBALCommand extends Command
         //     'last_name' => $row['LASTNAME']
         //     ));
         // $io->progressAdvance();
-        }
+        // }
        
        
         

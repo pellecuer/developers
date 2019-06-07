@@ -11,7 +11,7 @@ use App\Entity\BadgeLabel;
 use Doctrine\ORM\EntityManagerInterface;
 use League\Csv\Reader;
 
-class CsvImportCommand extends Command
+class CsvImportBatchSizeCommand extends Command
 {
     public function __construct(EntityManagerInterface $em){
         
@@ -21,7 +21,7 @@ class CsvImportCommand extends Command
     }
     
     // the name of the command (the part after "bin/console")
-    protected static $defaultName = 'import-developers';
+    protected static $defaultName = 'import-developers-batch';
 
     protected function configure()
     {
@@ -57,8 +57,8 @@ class CsvImportCommand extends Command
 
          // Define the size of record, the frequency for persisting the data and the current index of records
          $size = iterator_count($results);
-        //  $batchSize = 1;
-        //  $i = 1;
+         $batchSize = 1;
+         $i = 1;
 
 
         foreach ($results as $row) { 
@@ -102,12 +102,12 @@ class CsvImportCommand extends Command
             $developer
                 ->addBadgeLabel($badgeLabel);
             
-            // if (($i % $batchSize) === 0) {
-            //     $this->em->flush();
-            //     // Detaches all objects from Doctrine for memory save
-            //     $this->em->clear();
-            // }
-            // $i++;
+            if (($i % $batchSize) === 0) {
+                $this->em->flush();
+                // Detaches all objects from Doctrine for memory save
+                $this->em->clear();
+            }
+            $i++;
             $io->progressAdvance();
 
         }
