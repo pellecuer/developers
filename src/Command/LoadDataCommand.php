@@ -42,8 +42,7 @@ class LoadDataCommand extends Command
             // ...
         }
 
-        //début du code
-
+        
         $connexion = $this->em
         ->getConnection();
 
@@ -53,14 +52,19 @@ class LoadDataCommand extends Command
             echo "couldn't connect to database";
             exit;
         } else {            
-            $sql1 ="CREATE TABLE IF NOT EXISTS import ( last_name INT NOT NULL , first_name INT NOT NULL , badge_label INT NOT NULL , badge_level INT NOT NULL )";
-            $p = "../data//Data/developers_big.csv";
+            $sql1 ="CREATE TABLE IF NOT EXISTS import ( last_name  VARCHAR(255) NOT NULL , first_name VARCHAR(255) NOT NULL , badge_label VARCHAR(255) NOT NULL , badge_level VARCHAR(255) NOT NULL )";
+            $stmt = $connexion->prepare($sql1);
+            $stmt->execute();
+
+            $p = "../data/Data/developers_big.csv";
             $p = addslashes($p);
 
             
-            $sql = "TRUNCATE TABLE import;";
-            $stmt = $connexion->prepare($sql);
+            $sql2 = "TRUNCATE TABLE import;";
+            $stmt = $connexion->prepare($sql2);
             $stmt->execute();
+            
+            
             $sql3 = "LOAD DATA INFILE '$p'
             INTO TABLE import FIELDS TERMINATED BY ','
             LINES TERMINATED BY '\r\n'
@@ -69,34 +73,13 @@ class LoadDataCommand extends Command
             ;";
             $stmt = $connexion->prepare($sql3);
             $stmt->execute();
-
-
-            // $sql2 ="LOAD DATA INFILE '../Data/developers_big.csv'            
-            // INTO TABLE import
-            // FIELDS TERMINATED BY ','
-            // LINES TERMINATED BY '\r\n'
-            // IGNORE 1 LINES            
-            // ";
-            // // INTO TABLE import
-            // // FIELDS TERMINATED BY ','
-            // // LINES TERMINATED BY '\r\n'
-            // // IGNORE 1 LINES
-            // // (last_name, first_name, badge_label, badge_level)"
-            // // ;
-            // // dump($sql);die
-            // $stmt = $bdd->prepare($sql);
-            // $stmt->execute();    
             
 
-            // if ($connexion->query($sql)) {
-            //     echo ("executed");
-            // } else {
-            //     echo ("error");
-            // }
+            if ($connexion->query($sql3)) {
+                echo ("executed");
+            } else {
+                echo ("error");
+            }
         }
-
-        //fin du code
-
-
     }
 }
